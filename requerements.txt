@@ -1,0 +1,6 @@
+fastapi
+starlette
+Pillow
+opencv-contrib-python
+msgpack
+diffusers
