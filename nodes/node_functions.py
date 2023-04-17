@@ -1,22 +1,23 @@
 import torch
 from diffusers import StableDiffusionPipeline
 
-def load_diffusers(args=None):
-    pipeline = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
-    return pipeline, None
+def load_diffusers(node=None):
+    if not node.loaded:
+        pipeline = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
+        return pipeline, None
+    else:
+        return node.parent.values[node.node_id], None
 
 def run_diffusers(node=None):
 
-    input_node = node.inputs[0]
-    node_id = node.parent.nodes[input_node].node_id
+    node_id = node.get_input_node().node_id
 
-    pipeline = node.parent.values[node_id]
-    pipeline.to("cuda")
-    print(node.args)
-    images = pipeline(prompt=node.args['prompt'], num_inference_steps=node.args['steps']).images
-    pipeline.to("cpu")
-    del pipeline
-    print(node.inputs[0])
+    node.parent.values[node_id].to("cuda")
+
+    images = node.parent.values[node_id](prompt=node.args['prompt'], num_inference_steps=node.args['steps']).images
+
+    node.parent.values[node_id].to("cpu")
+
     return images, "send"
 
 

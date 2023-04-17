@@ -6,12 +6,9 @@ from starlette.websockets import WebSocket
 
 import msgpack
 
-from nodes import Graph
+from nodes import Graph, DEBUG
 
 app: FastAPI = FastAPI()
-
-import base64
-
 
 lock = threading.Lock()
 
@@ -32,6 +29,8 @@ async def websocket_node_sync(websocket: WebSocket):
     while True:
         data = await websocket.receive()
         data = msgpack.unpackb(data['bytes'], raw=False)
+        if DEBUG:
+            print(data)
         if data['task'] == 'sync':
             graph.sync(data['values'])
         elif data['task'] == 'eval':
