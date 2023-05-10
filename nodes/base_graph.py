@@ -18,8 +18,9 @@ class Graph:
     The graph can be updated by calling the `sync` method, which updates the existing nodes
     with new data and adds new nodes if necessary.
     """
-    def __init__(self, ws: WebSocket):
-
+    def __init__(self, ws: WebSocket, sid=None, send_images=None):
+        self.send_images = send_images
+        self.sid = sid
         self.ws = ws
         self.nodes = {}
         self.values = {}
@@ -77,14 +78,18 @@ class Graph:
 
             if answer == 'send':
                 images = self.values[node.node_id]
+                await self.send_images(self.sid, node_id, images)
+                """images = self.values[node.node_id]
                 for image in images:
                     pack = create_pack(image, node_id)
-                    await self.ws.send_bytes(pack)
+                    print("Sending back pack", image)
+                    await self.ws.send(pack)"""
 
             # Add connected nodes to the stack for traversal
-            for output_id in node.outputs:
-                output_node = self.nodes[output_id]
-                stack.append(output_node.node_id)
+            if node.outputs:
+                for output_id in node.outputs:
+                    output_node = self.nodes[output_id]
+                    stack.append(output_node.node_id)
     def sync(self, json_data: List[Dict[str, Any]]):
         """
         Updates the existing nodes with new data and adds new nodes if necessary.
@@ -99,12 +104,14 @@ class Graph:
 
         for node_data in json_data:
             node_id = node_data['id']
-            node_type = node_data['type']
+            node_type = node_data['fn']
             inputs = node_data['inputs']
             outputs = node_data['outputs']
-            fn_name = node_data['fn']
             args = node_data.get('args')
-            fn = functions[fn_name]
+            try:
+                fn = functions[node_type]
+            except:
+                fn = None
             if node_id in self.nodes:
                 node = self.nodes[node_id]
                 node.update(node_type, inputs, outputs, fn, args)

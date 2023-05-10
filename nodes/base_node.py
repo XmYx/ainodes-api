@@ -31,7 +31,14 @@ class DiffusersNode(Node):
         super().__init__(parent=parent, node_id=node_id, node_type=node_type, fn=fn)
         self.loaded = None
 
+class SD_Node(Node):
+    def __init__(self, parent=None, node_id=None, node_type=None, fn=None):
+        super().__init__(parent=parent, node_id=node_id, node_type=node_type, fn=fn)
+        self.loaded = None
+
 
 
 nodes = {"load_diffusers": DiffusersNode,
-         "run_diffusers": Node}
+         "run_diffusers": Node,
+         "imageNode": Node,
+         "stableDiffusionNode": SD_Node}

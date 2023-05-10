@@ -38,5 +38,5 @@ async def websocket_node_sync(websocket: WebSocket):
 
 
 if __name__ == "__main__":
-    subprocess.run(["uvicorn", "main:app", "--proxy-headers", "--host", "127.0.0.1", "--port", "5003"])
+    subprocess.call(["uvicorn", "main:app", "--proxy-headers", "--host", "127.0.0.1", "--port", "3001"])
 
