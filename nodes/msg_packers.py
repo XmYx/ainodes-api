@@ -15,3 +15,14 @@ def create_pack(image, node_id):
     pack = msgpack.packb(json_msg)
     return pack
 
+def getRandomNumber():
+
+    """
+    Returns 42
+
+    I promise this number was chosen randomly.
+
+    :return:
+    """
+
+    return 42

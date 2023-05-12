@@ -1,3 +1,5 @@
+import copy
+
 import torch
 from diffusers import StableDiffusionPipeline
 
@@ -16,11 +18,17 @@ def run_diffusers(node=None):
 
 def stableDiffusionNode(node=None):
     if not node.loaded:
-        node.pipeline = StableDiffusionPipeline.from_pretrained("stablediffusionapi/illuminati-diffusion", torch_dtype=torch.float16).to("cuda")
+        node.pipeline = StableDiffusionPipeline.from_pretrained("stablediffusionapi/illuminati-diffusion", torch_dtype=torch.float16)
         node.pipeline.enable_model_cpu_offload()
+        node.loaded = True
     images = node.pipeline(prompt=node.args['prompt'], num_inference_steps=int(node.args['num_inference_steps']), width=768, height=768).images
-    node.set_output(0, images)
-    return images, None
+    return_imgs = []
+    for image in images:
+        return_imgs.append(image)
+    #node.pipeline.to("cpu")
+    #node.set_output(0, copy.deepcopy(images))
+
+    return return_imgs, None
 
 def imageNode(node=None):
     node_id = node.get_input_node().node_id
